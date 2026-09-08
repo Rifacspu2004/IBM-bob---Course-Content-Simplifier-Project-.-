@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Course Content Simplifier – IBM Granite</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- ───── HEADER ───── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#0f62fe"/>
+          <path d="M8 10h16M8 16h10M8 22h13" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>
+          <circle cx="24" cy="22" r="4" fill="#fff" opacity=".9"/>
+          <path d="M22.5 22l1 1 2-2" stroke="#0f62fe" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span class="logo-text">Course Simplifier</span>
+      </div>
+      <div class="badge">Powered by <strong>IBM Granite</strong></div>
+    </div>
+  </header>
+
+  <!-- ───── HERO ───── -->
+  <section class="hero">
+    <h1>Understand Any Academic Content</h1>
+    <p>Paste lecture notes, textbook passages, or research text — get a clear, level-adapted explanation powered by IBM Granite AI.</p>
+  </section>
+
+  <!-- ───── MAIN ───── -->
+  <main class="container">
+
+    <!-- INPUT CARD -->
+    <section class="card input-card">
+      <h2 class="card-title">Academic Content</h2>
+
+      <div class="form-group">
+        <label for="content">Paste your content below</label>
+        <textarea id="content" placeholder="e.g. Quantum entanglement is a physical phenomenon that occurs when a group of particles are generated, interact, or share spatial proximity in such a way that the quantum state of each particle cannot be described independently…" rows="8"></textarea>
+        <div class="char-count"><span id="charCount">0</span> characters</div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group half">
+          <label for="subject">Subject Area</label>
+          <select id="subject">
+            <option value="">— Select Subject —</option>
+            <option value="Physics">Physics</option>
+            <option value="Chemistry">Chemistry</option>
+            <option value="Biology">Biology</option>
+            <option value="Mathematics">Mathematics</option>
+            <option value="Computer Science">Computer Science</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Economics">Economics</option>
+            <option value="History">History</option>
+            <option value="Literature">Literature</option>
+            <option value="Philosophy">Philosophy</option>
+            <option value="Medicine">Medicine</option>
+            <option value="General">General / Other</option>
+          </select>
+        </div>
+
+        <div class="form-group half">
+          <label>Learning Level</label>
+          <div class="level-selector">
+            <label class="level-btn">
+              <input type="radio" name="level" value="beginner" />
+              <span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M5 8h6M8 5v6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Beginner
+              </span>
+            </label>
+            <label class="level-btn">
+              <input type="radio" name="level" value="intermediate" checked />
+              <span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M5 8h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                Intermediate
+              </span>
+            </label>
+            <label class="level-btn">
+              <input type="radio" name="level" value="expert" />
+              <span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><polygon points="8,2 10,6 15,6.5 11.5,10 12.5,15 8,12.5 3.5,15 4.5,10 1,6.5 6,6" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>
+                Expert
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary" id="simplifyBtn" onclick="simplifyContent()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 9h12M9 3l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Simplify Content
+        </button>
+        <button class="btn btn-outline" id="compareBtn" onclick="compareAllLevels()">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 5h14M2 9h14M2 13h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          Compare All Levels
+        </button>
+        <button class="btn btn-ghost" onclick="clearAll()">Clear</button>
+      </div>
+    </section>
+
+    <!-- ERROR BANNER -->
+    <div id="errorBanner" class="error-banner hidden" role="alert"></div>
+
+    <!-- LOADING -->
+    <div id="loadingState" class="loading-state hidden">
+      <div class="spinner"></div>
+      <p>IBM Granite is analysing your content…</p>
+    </div>
+
+    <!-- OUTPUT CARD -->
+    <section class="card output-card hidden" id="outputCard">
+      <div class="output-header">
+        <div>
+          <h2 class="card-title">Simplified Explanation</h2>
+          <div class="output-meta">
+            <span class="tag" id="levelTag"></span>
+            <span class="tag tag-subject" id="subjectTag"></span>
+          </div>
+        </div>
+        <div class="output-actions">
+          <button class="btn btn-sm btn-outline" onclick="regenerate()">↺ Regenerate</button>
+          <button class="btn btn-sm btn-outline" onclick="tryAnotherLevel()">⇄ Try Another Level</button>
+          <button class="btn btn-sm btn-primary" onclick="copyOutput()">⎘ Copy Output</button>
+        </div>
+      </div>
+
+      <div class="output-body">
+        <!-- Simplified Explanation -->
+        <div class="output-section">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2a7 7 0 100 14A7 7 0 009 2z" stroke="currentColor" stroke-width="1.5"/><path d="M9 8v5M9 6v.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            Explanation
+          </h3>
+          <p id="explanationText" class="explanation-text"></p>
+        </div>
+
+        <div class="output-grid">
+          <!-- Key Concepts -->
+          <div class="output-section">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h8M3 13h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              Key Concepts
+            </h3>
+            <ul id="conceptsList" class="concepts-list"></ul>
+          </div>
+
+          <!-- Example -->
+          <div class="output-section">
+            <h3>
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 14L9 4l5 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M6 10h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Illustrative Example
+            </h3>
+            <div id="exampleText" class="example-box"></div>
+          </div>
+        </div>
+
+        <!-- Important Terms -->
+        <div class="output-section">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M6 7h6M6 11h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Important Terms
+          </h3>
+          <div id="termsList" class="terms-grid"></div>
+        </div>
+
+        <!-- Summary -->
+        <div class="output-section summary-section">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M9 2l2.3 4.7 5.2.8-3.75 3.65.89 5.15L9 14l-4.64 2.43.89-5.15L1.5 7.5l5.2-.8z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+            Summary
+          </h3>
+          <p id="summaryText" class="summary-text"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMPARE CARD -->
+    <section class="card compare-card hidden" id="compareCard">
+      <h2 class="card-title">Level Comparison</h2>
+      <div class="compare-grid" id="compareGrid"></div>
+    </section>
+
+  </main>
+
+  <!-- ───── FOOTER ───── -->
+  <footer class="site-footer">
+    <p>Built with <strong>IBM Bob</strong> · Powered by <strong>IBM Granite</strong> · watsonx.ai</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
